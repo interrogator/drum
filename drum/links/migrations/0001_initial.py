@@ -35,8 +35,8 @@ class Migration(migrations.Migration):
                 ('short_url', models.URLField(null=True, blank=True)),
                 ('in_sitemap', models.BooleanField(default=True, verbose_name='Show in sitemap')),
                 ('link', models.URLField(null=True, blank=True)),
-                ('site', models.ForeignKey(editable=False, to='sites.Site')),
-                ('user', models.ForeignKey(related_name='links', verbose_name='Author', to=settings.AUTH_USER_MODEL)),
+                ('site', models.ForeignKey(editable=False, to='sites.Site', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='links', verbose_name='Author', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('website', models.URLField(blank=True)),
                 ('bio', models.TextField(blank=True)),
                 ('karma', models.IntegerField(default=0, editable=False)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
     ]

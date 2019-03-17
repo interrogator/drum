@@ -12,7 +12,7 @@ except ImportError:
     from urlparse import urlparse
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save, pre_delete
@@ -66,7 +66,7 @@ class Link(Displayable, Ownable):
 @python_2_unicode_compatible
 class Profile(models.Model):
 
-    user = models.OneToOneField(USER_MODEL)
+    user = models.OneToOneField(USER_MODEL, on_delete=models.CASCADE)
     website = models.URLField(blank=True)
     bio = models.TextField(blank=True)
     karma = models.IntegerField(default=0, editable=False)

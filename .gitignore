@@ -8,3 +8,6 @@ local_settings.py
 *.pid
 .idea
 venv
+Drum.egg-info/
+build/
+dist/
