@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from future import standard_library
-from future.builtins import int
-
-from time import time
 from operator import ior
 from functools import reduce
 
@@ -25,7 +20,6 @@ from mezzanine.core.request import current_request
 from mezzanine.generic.models import Rating, Keyword, AssignedKeyword
 from mezzanine.generic.fields import RatingField, CommentsField
 from mezzanine.utils.importing import import_dotted_path
-from mezzanine.utils.urls import slugify
 
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -62,6 +56,7 @@ class Link(Displayable, Ownable):
             lookup = reduce(ior, [Q(title__iexact=k) for k in keywords])
             for keyword in Keyword.objects.filter(lookup):
                 self.keywords.add(AssignedKeyword(keyword=keyword), bulk=False)
+
 
 @python_2_unicode_compatible
 class Profile(models.Model):
