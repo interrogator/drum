@@ -1,20 +1,18 @@
 from django.forms.models import modelform_factory
 from django.forms import ValidationError
 
-from drum.links.models import Link
+from drum.chambers.models import Chamber
 
 
-BaseLinkForm = modelform_factory(Link, fields=["title", "chamber", "link", "description"])
+fields = ["display_name", "description", "automod"]
+BaseChamberForm = modelform_factory(Chamber, fields=fields)
 
 
-class LinkForm(BaseLinkForm):
+class ChamberForm(BaseChamberForm):
 
     def clean(self):
         link = self.cleaned_data.get("link")
         description = self.cleaned_data.get("description")
-        chamber = self.cleaned_data.get("chamber")
-        if not chamber:
-            raise ValidationError("Chamber required.")
         if not link and not description:
             raise ValidationError("Either a link or description is required")
         return self.cleaned_data

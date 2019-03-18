@@ -14,6 +14,7 @@
         <h2>
             <a href="{{ link.url }}">{{ link.title }}</a>
             <span class="domain">({{ link.domain }})</span>
+            <span class="domain">Chamber: {{ link.chamber }}</span>
         </h2>
         by <a class="profile" href="{% url "profile" link.user.username %}">{{ link.user|get_profile }}</a>
         {{ link.publish_date|short_timesince }} ago |

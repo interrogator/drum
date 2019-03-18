@@ -1,22 +1,19 @@
 from __future__ import unicode_literals
 from future.builtins import super
 
-from datetime import timedelta
-
 from django.contrib.auth.models import User
 from django.contrib.messages import info, error
 
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.timezone import now
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
 
 from mezzanine.accounts import get_profile_model
 from mezzanine.conf import settings
-from mezzanine.generic.models import ThreadedComment, Keyword
+from mezzanine.generic.models import ThreadedComment
 from mezzanine.utils.views import paginate
 
-from drum.links.forms import LinkForm
-from drum.links.models import Link
+from drum.chambers.forms import ChamberForm
+from drum.chambers.models import Chamber
 from drum.links.utils import order_by_score
 
 
@@ -76,10 +73,8 @@ class ScoreOrderingView(UserFilterView):
             qs = order_by_score(qs, self.score_fields, self.date_field)
         else:
             qs = qs.order_by("-" + self.date_field)
-        page = self.request.GET.get("page", 1)
-        items = settings.ITEMS_PER_PAGE
-        max_page = settings.MAX_PAGING_LINKS
-        context["object_list"] = paginate(qs, page, items, max_page)
+        context["object_list"] = paginate(qs, self.request.GET.get("page", 1),
+            settings.ITEMS_PER_PAGE, settings.MAX_PAGING_LINKS)
         # Update context_object_name variable
         context_object_name = self.get_context_object_name(context["object_list"])
         context[context_object_name] = context["object_list"]
@@ -87,18 +82,24 @@ class ScoreOrderingView(UserFilterView):
         return context
 
 
-class LinkView(object):
+class ChamberView(object):
     """
     List and detail view mixin for links - just defines the correct
     queryset.
     """
-    def get_queryset(self, chamber=None):
-        user_rel = "user__%s" % USER_PROFILE_RELATED_NAME
-        links = Link.objects.published().select_related("user", user_rel)
-        return links if not chamber else links.filter(chamber=chamber)
+    template_name = "links/tag_list.html"
+
+    def get_queryset(self):
+        return Chamber.objects.published().select_related(
+            "user",
+            "user__%s" % USER_PROFILE_RELATED_NAME
+        )
+    def get_object(self):
+        name = self.request.resolver_match.kwargs["display_name"]
+        return name
 
 
-class LinkList(LinkView, ScoreOrderingView):
+class ChamberList(ChamberView, ScoreOrderingView):
     """
     List view for links, which can be for all users (homepage) or
     a single user (links from user's profile page). Links can be
@@ -108,72 +109,56 @@ class LinkList(LinkView, ScoreOrderingView):
 
     date_field = "publish_date"
     score_fields = ["rating_sum", "comments_count"]
+    template_name = "links/tag_list.html"
 
     def get_queryset(self):
-        chamber = self.kwargs.get("display_name")
-        chamber = dict(chamber=chamber) if chamber else dict()
-        queryset = super(LinkList, self).get_queryset(**chamber)
+        queryset = super(ChamberList, self).get_queryset()
         tag = self.kwargs.get("tag")
         if tag:
             queryset = queryset.filter(keywords__keyword__slug=tag)
         return queryset.prefetch_related("keywords__keyword")
 
-    def get_title(self, context):
-        tag = self.kwargs.get("tag")
-        if tag:
-            return get_object_or_404(Keyword, slug=tag).title
-        if context["by_score"]:
-            return ""  # Homepage
-        if context["profile_user"]:
-            return "Links by %s" % getattr(
-                context["profile_user"],
-                USER_PROFILE_RELATED_NAME
-            )
-        else:
-            return "Newest"
+    #def get_title(self, context):
+    #    tag = self.kwargs.get("tag")
+    #    if tag:
+    #        return get_object_or_404(Keyword, slug=tag).title
+    #    if context["by_score"]:
+    #        return ""  # Homepage
+    #    if context["profile_user"]:
+    #        return "Links by %s" % getattr(
+    #            context["profile_user"],
+    #            USER_PROFILE_RELATED_NAME
+    #        )
+    #    else:
+    #        return "Newest"
 
 
 class ChamberCreate(CreateView):
-
-    form_class = LinkForm
-    model = Link
-
-    pass
-
-
-class LinkCreate(CreateView):
     """
     Link creation view - assigns the user to the new link, as well
     as setting Mezzanine's ``gen_description`` attribute to ``False``,
     so that we can provide our own descriptions.
     """
-    def __init__(self):
-        super().__init__()
 
-    form_class = LinkForm
-    model = Link
+    form_class = ChamberForm
+    model = Chamber
 
     def form_valid(self, form):
-        hours = getattr(settings, "ALLOWED_DUPLICATE_LINK_HOURS", None)
-        chamber = form.instance.chamber
-        if hours and form.instance.link:
-            lookup = dict(link=form.instance.link,
-                          chamber=chamber,
-                          publish_date__gt=now()-timedelta(hours=hours))
-            try:
-                link = Link.objects.get(**lookup)
-            except Link.DoesNotExist:
-                pass
-            else:
-                error(self.request, "Link exists")
-                return redirect(link)
+        lookup = dict(display_name=form.instance.display_name)
+        try:
+            chamber = Chamber.objects.get(**lookup)
+        except Chamber.DoesNotExist:
+            pass
+        else:
+            error(self.request, "Chamber exists")
+            return redirect(chamber)
         form.instance.user = self.request.user
         form.instance.gen_description = False
-        info(self.request, "Link created")
-        return super(LinkCreate, self).form_valid(form)
+        info(self.request, "Chamber created")
+        return super(ChamberCreate, self).form_valid(form)
 
 
-class LinkDetail(LinkView, DetailView):
+class ChamberDetail(ChamberView, DetailView):
     """
     Link detail view - threaded comments and rating are implemented
     in its template.

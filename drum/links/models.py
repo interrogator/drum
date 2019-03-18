@@ -27,10 +27,10 @@ USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 class Link(Displayable, Ownable):
 
-    link = models.URLField(null=True,
-        blank=(not getattr(settings, "LINK_REQUIRED", False)))
+    link = models.URLField(null=True, blank=(not getattr(settings, "LINK_REQUIRED", False)))
     rating = RatingField()
     comments = CommentsField()
+    chamber = models.CharField(max_length=200, null=False)
 
     def get_absolute_url(self):
         return reverse("link_detail", kwargs={"slug": self.slug})

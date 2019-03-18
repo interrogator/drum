@@ -58,7 +58,8 @@
     </ul>
     <div class="nav-collapse">
         <div class="pull-right">
-            <a class="btn btn-small btn-warning no-pjax" href="{% url "link_create" %}">New Link</a>
+            <a class="btn btn-small btn-warning no-pjax" href="{% url "chamber_create" %}">New Chamber</a>
+            <a class="btn btn-small btn-warning no-pjax" href="{% url "link_create" %}">New Thread</a>
         </div>
         <ul class="nav pull-right"><li class="divider-vertical"></li></ul>
         {% search_form %}
@@ -92,9 +93,7 @@
 <footer>
 <div class="container">
     <p>
-        Made by <a href="http://twitter.com/stephen_mcd">Stephen McDonald</a>
-        <span class="separator">|</span>
-        <a href="https://github.com/stephenmcd/drum">Open Source</a>
+        Made by (echo) sQUAD</a>
         <span class="separator">|</span>
         {% trans "Powered by" %} <a href="http://mezzanine.jupo.org">Mezzanine</a>
     </p>
