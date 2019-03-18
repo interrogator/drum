@@ -43,7 +43,7 @@ try:
         author="Stephen McDonald",
         author_email="stephen.mc@gmail.com",
         description="A Reddit / Hacker News clone for Django.",
-        long_description=open("README.rst", 'rb').read().decode('utf-8'),
+        long_description=open("README.md", 'r').read(),
         license="BSD",
         url="http://drum.jupo.org/",
         zip_safe=False,
