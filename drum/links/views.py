@@ -143,10 +143,8 @@ class LinkCreate(CreateView):
     def form_valid(self, form):
         hours = getattr(settings, "ALLOWED_DUPLICATE_LINK_HOURS", None)
         if hours and form.instance.link:
-            lookup = {
-                "link": form.instance.link,
-                "publish_date__gt": now() - timedelta(hours=hours),
-            }
+            lookup = dict(link=form.instance.link,
+                          publish_date__gt=now()-timedelta(hours=hours))
             try:
                 link = Link.objects.get(**lookup)
             except Link.DoesNotExist:
