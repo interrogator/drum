@@ -2,34 +2,13 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 from django import template
-from django.template.defaultfilters import timesince, stringfilter
+from django.template.defaultfilters import timesince
 
 from drum.links.utils import order_by_score
 from drum.links.views import CommentList, USER_PROFILE_RELATED_NAME
 
 
 register = template.Library()
-
-
-@register.filter
-@stringfilter
-def lastpart(value):
-    return value.split('/')[-1]
-
-
-@register.filter('notstartswith')
-def startswith(text, starts):
-    if isinstance(text, str):
-        if text.startswith(starts):
-            return False
-    return True
-
-
-@register.filter('startswith')
-def startswith(text, starts):
-    if isinstance(text, str):
-        return text.startswith(starts)
-    return False
 
 
 @register.filter

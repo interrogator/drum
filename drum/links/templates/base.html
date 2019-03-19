@@ -7,7 +7,8 @@
 <meta name="viewport" content="width=device-width">
 <meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
 <meta name="description" content="{% block meta_description %}{% endblock %}">
-<title>{% block meta_title %}{% endblock %}{% if settings.SITE_TITLE %} | {{ settings.SITE_TITLE }}{% endif %}</title>
+
+<title>{% if chamber %} {{ settings.SITE_TITLE }}: {{ chamber }} {% else %} {{ settings.SITE_TITLE }} {% endif %}</title>
 <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
 
 <style>
@@ -44,7 +45,7 @@
         <span class="icon-bar"></span>
     </a>
 
-    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if request.path|startswith:'/c/' %}: {{ request.path|lastpart }}{% endif %}</a>
+    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if chamber %}: {{ chamber }}{% endif %}</a>
     <ul class="nav">
         <li class="divider-vertical"></li>
         {% url "link_list_latest" as link_list_latest %}
@@ -59,7 +60,7 @@
     <div class="nav-collapse">
         <div class="pull-right">
             <a class="btn btn-small btn-warning no-pjax" href="{% url 'chamber_create' %}">New Chamber</a>
-            {% if request.path != '/' %}<a class="btn btn-small btn-warning no-pjax" href="{% url 'link_create' request.path|lastpart %}">New Thread</a>{% endif %}
+            {% if chamber %}<a class="btn btn-small btn-warning no-pjax" href="{% url 'link_create' chamber %}">New Thread</a>{% endif %}
         </div>
         <ul class="nav pull-right"><li class="divider-vertical"></li></ul>
         {% search_form %}

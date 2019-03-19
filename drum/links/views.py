@@ -92,6 +92,11 @@ class LinkView(object):
     List and detail view mixin for links - just defines the correct
     queryset.
     """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chamber'] = self.kwargs.get("chamber", "")
+        return context
+
     def get_queryset(self, chamber=None):
         user_rel = "user__%s" % USER_PROFILE_RELATED_NAME
         links = Link.objects.published().select_related("user", user_rel)
@@ -109,8 +114,14 @@ class LinkList(LinkView, ScoreOrderingView):
     date_field = "publish_date"
     score_fields = ["rating_sum", "comments_count"]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        chamber = self.kwargs.get("chamber", "")
+        context['chamber'] = chamber
+        return context
+
     def get_queryset(self):
-        chamber = self.kwargs.get("display_name")
+        chamber = self.kwargs.get("chamber")
         chamber = dict(chamber=chamber) if chamber else dict()
         queryset = super(LinkList, self).get_queryset(**chamber)
         tag = self.kwargs.get("tag")
@@ -145,10 +156,14 @@ class LinkCreate(CreateView):
     form_class = LinkForm
     model = Link
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chamber'] = self.kwargs.get("chamber", "")
+        return context
+
     def get_initial(self):
         # initial = super().get_initial()
         chamber = self.kwargs.get("chamber")
-        print('CHAMBER', chamber)
         return {'chamber': chamber}
 
     def form_valid(self, form):
@@ -207,6 +222,11 @@ class CommentList(ScoreOrderingView):
             return "Best comments"
         else:
             return "Latest comments"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chamber'] = self.kwargs.get("chamber", "")
+        return context
 
 
 class TagList(TemplateView):
