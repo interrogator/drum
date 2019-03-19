@@ -133,14 +133,6 @@ class LinkList(LinkView, ScoreOrderingView):
             return "Newest"
 
 
-class ChamberCreate(CreateView):
-
-    form_class = LinkForm
-    model = Link
-
-    pass
-
-
 class LinkCreate(CreateView):
     """
     Link creation view - assigns the user to the new link, as well
@@ -152,6 +144,12 @@ class LinkCreate(CreateView):
 
     form_class = LinkForm
     model = Link
+
+    def get_initial(self):
+        # initial = super().get_initial()
+        chamber = self.kwargs.get("chamber")
+        print('CHAMBER', chamber)
+        return {'chamber': chamber}
 
     def form_valid(self, form):
         hours = getattr(settings, "ALLOWED_DUPLICATE_LINK_HOURS", None)

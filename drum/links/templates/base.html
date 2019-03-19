@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE }}">
-{% load mezzanine_tags i18n staticfiles %}
+{% load mezzanine_tags i18n staticfiles drum_tags %}
 <head>
 
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -44,7 +44,7 @@
         <span class="icon-bar"></span>
     </a>
 
-    {% if settings.SITE_TITLE %}<a class="brand" href="/">{{ settings.SITE_TITLE }}</a>{% endif %}
+    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if request.path|startswith:'/c/' %}: {{ request.path }}{% endif %}</a>
     <ul class="nav">
         <li class="divider-vertical"></li>
         {% url "link_list_latest" as link_list_latest %}
@@ -58,8 +58,8 @@
     </ul>
     <div class="nav-collapse">
         <div class="pull-right">
-            <a class="btn btn-small btn-warning no-pjax" href="{% url "chamber_create" %}">New Chamber</a>
-            <a class="btn btn-small btn-warning no-pjax" href="{% url "link_create" %}">New Thread</a>
+            <a class="btn btn-small btn-warning no-pjax" href="{% url 'chamber_create' %}">New Chamber</a>
+            {% if request.path != '/' %}<a class="btn btn-small btn-warning no-pjax" href="{% url 'link_create' request.path|lastpart %}">New Thread</a>{% endif %}
         </div>
         <ul class="nav pull-right"><li class="divider-vertical"></li></ul>
         {% search_form %}

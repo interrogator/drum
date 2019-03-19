@@ -19,7 +19,7 @@ urlpatterns = [
     url("^best/$",
         CommentList.as_view(),
         name="comment_list_best"),
-    url("^link/create/$",
+    url("^link/create/(?P<chamber>.*)?/?$",
         login_required(LinkCreate.as_view()),
         name="link_create"),
     url("^link/(?P<slug>.*)/$",
