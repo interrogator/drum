@@ -3,13 +3,19 @@
 <ul class="unstyled comment-thread">
     {% for comment in comments_for_thread %}
     <li id="comment-{{ comment.id }}">
-    {% if not comment.is_removed and comment.is_public and not comment.failed_automod %}
+    {% if not comment.is_removed and comment.is_public%}
 
         <p class="comment-meta">
             <a href="{% url 'profile' comment.user.username %}">{{ comment.user|get_profile }}</a>
             {{ comment.submit_date|short_timesince }} ago
         </p>
+
+        {% if comment.failed_automod %}
+        <p><b><i>Error(s):<br><br>{{ comment.failed_automod|safe }}</i></b></p>
+        <p class="comment-comment">Original comment:<br><br><strike>{{ comment.comment|comment_filter }}</strike></p>
+        {% else %}
         <p class="comment-comment">{{ comment.comment|comment_filter }}</p>
+        {% endif %}
 
         <div class="comment-links">
             {% rating_for comment %}
@@ -32,10 +38,6 @@
 
         {% if comment.is_removed %}
         <p>Deleted</p>
-        {% endif %}
-
-        {% if comment.failed_automod %}
-        <p>Censored</p>
         {% endif %}
 
     {% endif %}
