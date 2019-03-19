@@ -52,7 +52,6 @@ try:
         test_suite="runtests.main",
 
         install_requires=[
-            "mezzanine >= 4.2.0",
             "sphinx-me",
         ],
 
