@@ -11,7 +11,7 @@
 <ul class="tag-cloud">
 {% for tag in tags|sort_by:"title" %}
 <li>
-    <a href="{% url "link_list_tag" tag.slug %}"
+    <a href="{% url 'link_list_tag' tag.slug %}"
         class="tag-weight-{{ tag.weight }}">{{ tag }}</a>
     ({{ tag.item_count }})
 </li>
