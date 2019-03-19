@@ -33,7 +33,8 @@ class Link(Displayable, Ownable):
     chamber = models.CharField(max_length=200, null=False)
 
     def get_absolute_url(self):
-        return reverse("link_detail", kwargs={"slug": self.slug})
+        kwa = {"slug": self.slug, "chamber": self.chamber}
+        return reverse("link_detail", kwargs=kwa)
 
     @property
     def domain(self):

@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from future.builtins import super
-
 from django.contrib.auth.models import User
 from django.contrib.messages import info, error
 
@@ -95,7 +92,7 @@ class ChamberView(object):
             "user__%s" % USER_PROFILE_RELATED_NAME
         )
     def get_object(self):
-        name = self.request.resolver_match.kwargs["display_name"]
+        name = self.request.resolver_match.kwargs["chamber"]
         return name
 
 
@@ -144,7 +141,7 @@ class ChamberCreate(CreateView):
     model = Chamber
 
     def form_valid(self, form):
-        lookup = dict(display_name=form.instance.display_name)
+        lookup = dict(chamber=form.instance.chamber)
         try:
             chamber = Chamber.objects.get(**lookup)
         except Chamber.DoesNotExist:
