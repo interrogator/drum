@@ -44,7 +44,7 @@
         <span class="icon-bar"></span>
     </a>
 
-    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if request.path|startswith:'/c/' %}: {{ request.path }}{% endif %}</a>
+    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if request.path|startswith:'/c/' %}: {{ request.path|lastpart }}{% endif %}</a>
     <ul class="nav">
         <li class="divider-vertical"></li>
         {% url "link_list_latest" as link_list_latest %}
