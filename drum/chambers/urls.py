@@ -8,13 +8,10 @@ from drum.links.views import LinkList
 
 
 urlpatterns = [
-    # url("^$",
-    #     ChamberList.as_view(),
-    #    name="home"),
-    url("^chamber/create/$",
+    url("^create/$",
         login_required(ChamberCreate.as_view()),
         name="chamber_create"),
-    url("^c(hamber)?/(?P<display_name>.*)/?$",
+    url("^c/(?P<chamber>.*)/?$",
         LinkList.as_view(),
         name="chamber_view"),
 ]
