@@ -16,8 +16,9 @@ from mezzanine.generic.models import ThreadedComment, Keyword
 from mezzanine.utils.views import paginate
 
 from drum.links.forms import LinkForm
-from drum.links.models import Link
+from drum.links.models import Link, Profile
 from drum.links.utils import order_by_score
+from drum.chambers.models import Chamber
 
 
 # Returns the name to be used for reverse profile lookups from the user
@@ -169,6 +170,16 @@ class LinkCreate(CreateView):
     def form_valid(self, form):
         hours = getattr(settings, "ALLOWED_DUPLICATE_LINK_HOURS", None)
         chamber = form.instance.chamber
+        profile = Profile.objects.get(user=self.request.user)
+        chamber_min = Chamber.objects.get(chamber=chamber).min_thread_balance
+        user_balance = profile.balance
+        if user_balance < chamber_min:
+            msg = "Balance ({}) too low to create a thread in '{}'. Minimum: {}"
+            form = msg.format(user_balance, chamber, chamber_min)
+            error(self.request, form)
+            # todo: fix this url
+            return redirect('/c/' + chamber)
+
         if hours and form.instance.link:
             lookup = dict(link=form.instance.link,
                           chamber=chamber,

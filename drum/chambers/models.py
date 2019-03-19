@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
@@ -19,12 +20,19 @@ SEVERITY = dict(max_digits=3,
                 decimal_places=2,
                 default=Decimal('0'))
 
+BALANCE = dict(decimal_places=2,
+               default=Decimal('0'),
+               max_digits=8)
+
 
 class Chamber(Displayable, Ownable):
 
     chamber = models.CharField(max_length=200)
     rating = RatingField()
     comments = CommentsField()
+    balance = models.DecimalField(**BALANCE)
+    min_thread_balance = models.DecimalField(**BALANCE)
+    min_comment_balance = models.DecimalField(**BALANCE)
 
     # ugly automod stuff...
     automod_a = models.CharField(**AUTOMOD)

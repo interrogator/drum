@@ -12,6 +12,7 @@ from mezzanine.utils.views import paginate
 from drum.chambers.forms import ChamberForm
 from drum.chambers.models import Chamber
 from drum.links.utils import order_by_score
+from drum.links.models import Profile
 
 
 # Returns the name to be used for reverse profile lookups from the user
@@ -141,7 +142,8 @@ class ChamberCreate(CreateView):
     model = Chamber
 
     def form_valid(self, form):
-        lookup = dict(chamber=form.instance.chamber)
+        cham = form.instance.chamber
+        lookup = dict(chamber=cham)
         try:
             chamber = Chamber.objects.get(**lookup)
         except Chamber.DoesNotExist:
@@ -149,6 +151,13 @@ class ChamberCreate(CreateView):
         else:
             error(self.request, "Chamber exists")
             return redirect(chamber)
+        profile = Profile.objects.get(user=self.request.user)
+        user_balance = profile.balance
+        if user_balance < settings.MIN_CHAMBER_BALANCE:
+            msg = "Balance ({}) too low to create a chamber. Minimum: {}"
+            form = msg.format(user_balance, cham, settings.MIN_CHAMBER_BALANCE)
+            error(self.request, form)
+            return redirect('/')
         form.instance.user = self.request.user
         form.instance.gen_description = False
         info(self.request, "Chamber created")

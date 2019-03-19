@@ -1,10 +1,8 @@
 from operator import ior
 from functools import reduce
+from decimal import Decimal
 
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.urls import reverse
@@ -66,6 +64,7 @@ class Profile(models.Model):
     website = models.URLField(blank=True)
     bio = models.TextField(blank=True)
     karma = models.IntegerField(default=0, editable=False)
+    balance = models.DecimalField(decimal_places=2, default=Decimal('5.00'), max_digits=8)
 
     def __str__(self):
         return "%s (%s)" % (self.user, self.karma)
