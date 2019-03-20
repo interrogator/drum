@@ -9,8 +9,6 @@ from mezzanine.core.models import Displayable, Ownable
 from mezzanine.core.request import current_request
 from mezzanine.generic.fields import RatingField, CommentsField
 
-from decimal import Decimal
-
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 AUTOMOD = dict(blank=True,
@@ -33,6 +31,8 @@ class Chamber(Displayable, Ownable):
     balance = models.DecimalField(**BALANCE)
     min_thread_balance = models.DecimalField(**BALANCE)
     min_comment_balance = models.DecimalField(**BALANCE)
+    automod_can_fine = models.BooleanField(default=False)
+    max_fine = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('0'))
 
     # ugly automod stuff...
     automod_a = models.CharField(**AUTOMOD)
