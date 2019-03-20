@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load mezzanine_tags rating_tags keyword_tags drum_tags %}
+
+{% block meta_title %}{{ title|default:"Home" }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+
+{% for link in object_list %}
+<div class="link-item clearfix">
+    <div class="link-detail{% if link.rating_sum < 0 %} link-negative{% endif %}">
+        <h2>
+            <a href="{% url 'chamber_view' chamber=link.chamber %}">{{ link.chamber }}</a>
+        </h2>
+        {% if link.automod_a %}<div class="profile">{{ link.automod_a }} (severity: {{ link.severity_a }})</div>{% endif %}
+        {% if link.automod_b %}<div class="profile">{{ link.automod_b }} (severity: {{ link.severity_b }})</div>{% endif %}
+        {% if link.automod_c %}<div class="profile">{{ link.automod_c }} (severity: {{ link.severity_c }})</div>{% endif %}
+        {% if link.automod_d %}<div class="profile">{{ link.automod_d }} (severity: {{ link.severity_d }})</div>{% endif %}
+        {% if link.automod_e %}<div class="profile">{{ link.automod_e }} (severity: {{ link.severity_e }})</div>{% endif %}
+    </div>
+</div>
+{% empty %}
+<p>{{ no_data }}</p>
+{% endfor %}
+
+{% pagination_for object_list "page" "pjax" %}
+
+{% endblock %}

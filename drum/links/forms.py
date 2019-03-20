@@ -3,11 +3,15 @@ from django.forms import ValidationError
 
 from drum.links.models import Link
 
-
-BaseLinkForm = modelform_factory(Link, fields=["title", "chamber", "link", "description"])
+fields = ["title", "chamber", "link", "description"]
+BaseLinkForm = modelform_factory(Link, fields=fields)
 
 
 class LinkForm(BaseLinkForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields['chamber'].widget.attrs['disabled'] = True
 
     def clean(self):
         link = self.cleaned_data.get("link")
