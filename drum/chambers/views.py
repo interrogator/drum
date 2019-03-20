@@ -46,8 +46,7 @@ class UserFilterView(ListView):
             context[context_object_name] = context["object_list"]
 
         context["profile_user"] = profile_user
-        context["no_data"] = ("Whoa, there's like, literally no data here, "
-                              "like seriously, I totally got nothin.")
+        context["no_data"] = "No posts to display (yet)."
         return context
 
 
@@ -92,6 +91,7 @@ class ChamberView(object):
             "user",
             "user__%s" % USER_PROFILE_RELATED_NAME
         )
+
     def get_object(self):
         name = self.request.resolver_match.kwargs["chamber"]
         return name
@@ -107,28 +107,11 @@ class ChamberList(ChamberView, ScoreOrderingView):
 
     date_field = "publish_date"
     score_fields = ["rating_sum", "comments_count"]
-    template_name = "links/tag_list.html"
+    template_name = "links/chamber_list.html"
+    queryset = Chamber.objects.all()
 
-    def get_queryset(self):
-        queryset = super(ChamberList, self).get_queryset()
-        tag = self.kwargs.get("tag")
-        if tag:
-            queryset = queryset.filter(keywords__keyword__slug=tag)
-        return queryset.prefetch_related("keywords__keyword")
-
-    #def get_title(self, context):
-    #    tag = self.kwargs.get("tag")
-    #    if tag:
-    #        return get_object_or_404(Keyword, slug=tag).title
-    #    if context["by_score"]:
-    #        return ""  # Homepage
-    #    if context["profile_user"]:
-    #        return "Links by %s" % getattr(
-    #            context["profile_user"],
-    #            USER_PROFILE_RELATED_NAME
-    #        )
-    #    else:
-    #        return "Newest"
+    def get_title(self, context):
+        return "Chambers"  # ?
 
 
 class ChamberCreate(CreateView):
@@ -137,9 +120,14 @@ class ChamberCreate(CreateView):
     as setting Mezzanine's ``gen_description`` attribute to ``False``,
     so that we can provide our own descriptions.
     """
-
+    template_name = 'links/link_form.html'
     form_class = ChamberForm
     model = Chamber
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chamber_or_thread'] = "chamber"
+        return context
 
     def form_valid(self, form):
         cham = form.instance.chamber
@@ -169,7 +157,7 @@ class ChamberDetail(ChamberView, DetailView):
     Link detail view - threaded comments and rating are implemented
     in its template.
     """
-    pass
+    template_name = 'links/link_detail.html'
 
 
 class CommentList(ScoreOrderingView):
