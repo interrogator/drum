@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block meta_title %}New Thread{% endblock %}
-{% block title %}New Thread{% endblock %}
+{% block meta_title %}New {{ chamber_or_thread|capfirst }}{% endblock %}
+{% block title %}New {{ chamber_or_thread|capfirst }}{% endblock %}
 
 {% load mezzanine_tags %}
 
@@ -10,7 +10,8 @@
 <form method="post">
 <fieldset>{% fields_for form %}</fieldset>
 <div class="actions">
-    <input class="btn btn-warning btn-large" type="submit" value="Submit new thread">
+    <input class="btn btn-warning btn-large" type="submit" value="Submit new {{ chamber_or_thread }}">
 </div>
 </form>
 {% endblock %}
+
