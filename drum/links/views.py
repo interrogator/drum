@@ -14,6 +14,7 @@ from mezzanine.accounts import get_profile_model
 from mezzanine.conf import settings
 from mezzanine.generic.models import ThreadedComment, Keyword
 from mezzanine.utils.views import paginate
+from mezzanine.utils.automod import get_automod_scores, score_below_threshold
 
 from drum.links.forms import LinkForm
 from drum.links.models import Link, Profile
@@ -52,8 +53,7 @@ class UserFilterView(ListView):
             context[context_object_name] = context["object_list"]
 
         context["profile_user"] = profile_user
-        context["no_data"] = ("Whoa, there's like, literally no data here, "
-                              "like seriously, I totally got nothin.")
+        context["no_data"] = "No posts to display (yet)."
         return context
 
 
@@ -160,6 +160,9 @@ class LinkCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['chamber'] = self.kwargs.get("chamber", "")
+        context['chamber_or_thread'] = "thread"
+        return context
+
         return context
 
     def get_initial(self):
@@ -170,15 +173,24 @@ class LinkCreate(CreateView):
     def form_valid(self, form):
         hours = getattr(settings, "ALLOWED_DUPLICATE_LINK_HOURS", None)
         chamber = form.instance.chamber
+        text = form.instance.description
         profile = Profile.objects.get(user=self.request.user)
         chamber_min = Chamber.objects.get(chamber=chamber).min_thread_balance
+        # automod
+        scores, automods = get_automod_scores(self.request, chamber, text)
+        fail_info = score_below_threshold(scores, automods)
+        if fail_info:
+            msg = "Failed automoderation:<br><br>{}".format(fail_info)
+            error(self.request, msg)
+            # todo: fix this url
+            return redirect('chamber_view', chamber=chamber)
         user_balance = profile.balance
         if user_balance < chamber_min:
             msg = "Balance ({}) too low to create a thread in '{}'. Minimum: {}"
-            form = msg.format(user_balance, chamber, chamber_min)
-            error(self.request, form)
+            formed = msg.format(user_balance, chamber, chamber_min)
+            error(self.request, formed)
             # todo: fix this url
-            return redirect('/c/' + chamber)
+            return redirect('chamber_view', chamber=chamber)
 
         if hours and form.instance.link:
             lookup = dict(link=form.instance.link,

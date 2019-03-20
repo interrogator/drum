@@ -4,11 +4,12 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from drum.links.views import LinkList, LinkCreate, LinkDetail, CommentList, TagList
-
+from drum.chambers.views import ChamberList
 
 urlpatterns = [
     url("^$",
-        LinkList.as_view(),
+        # change this to LinkList in order to show top links
+        ChamberList.as_view(), {"by_score": False},
         name="home"),
     url("^newest/$",
         LinkList.as_view(), {"by_score": False},
