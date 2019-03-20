@@ -7,7 +7,6 @@
 <meta name="viewport" content="width=device-width">
 <meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
 <meta name="description" content="{% block meta_description %}{% endblock %}">
-
 <title>{% if chamber %} {{ settings.SITE_TITLE }}: {{ chamber }} {% else %} {{ settings.SITE_TITLE }} {% endif %}</title>
 <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
 
@@ -44,8 +43,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
     </a>
-
-    <a class="brand" href="/">{{ settings.SITE_TITLE }}{% if chamber %}: {{ chamber }}{% endif %}</a>
+    <div class="brand"><a class="brand" href="/">{{ settings.SITE_TITLE }}</a>{% if chamber %}/c/<a class="chamber" href="{% url 'chamber_view' chamber=chamber %}">{{ chamber }} </a> {% endif %} </div>
     <ul class="nav">
         <li class="divider-vertical"></li>
         {% url "link_list_latest" as link_list_latest %}
@@ -74,9 +72,11 @@
 
 <div class="container main">
 {% nevercache %}
+<br>
+<br>
 {% for message in messages %}
 <div class="alert alert-{{ message.tags }}" data-alert="alert">
-    <a class="close" href="#" onclick="$(this).parent().fadeOut('fast'); return false;">×</a>{{ message }}
+    <a class="close" href="#" onclick="$(this).parent().fadeOut('fast'); return false;">×</a>{{ message|safe }}
 </div>
 {% endfor %}
 {% endnevercache %}
