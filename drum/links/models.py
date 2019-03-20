@@ -63,11 +63,35 @@ class Profile(models.Model):
     user = models.OneToOneField(USER_MODEL, on_delete=models.CASCADE)
     website = models.URLField(blank=True)
     bio = models.TextField(blank=True)
+    motto = models.TextField(blank=True)
+    gender = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
     karma = models.IntegerField(default=0, editable=False)
     balance = models.DecimalField(decimal_places=2, default=Decimal('5.00'), max_digits=8)
+    total_uo_given = models.IntegerField(default=0, editable=False)
+    total_down_given = models.IntegerField(default=0, editable=False)
+    total_users_paid = models.IntegerField(default=0, editable=False)
 
     def __str__(self):
         return "%s (%s)" % (self.user, self.karma)
+
+    def _get_trust(self):
+        """
+        Each user has a trust rating, based on potentially all kinds of factors
+
+        Return: Decimal between 0 (breivik) and 1 (marx)
+        """
+        return Decimal('0.5')
+
+    def _normalise_vote(self, amount):
+        """
+        Normalise an up/downvote based on user history
+
+        DISCUSS: should trust/being a mod influence vote amount
+        """
+        if amount > 0:
+            return amount / (self.total_uo_given / self.total_down_given)
+        return amount / (self.total_down_given / self.total_uo_given)
 
 
 @receiver(post_save, sender=Rating)
@@ -85,9 +109,9 @@ def karma(sender, **kwargs):
     rating = kwargs["instance"]
     value = int(rating.value)
     if "created" not in kwargs:
-        value *= -1 #  Rating deleted
+        value *= -1  #  Rating deleted
     elif not kwargs["created"]:
-        value *= 2 #  Rating changed
+        value *= 2  #  Rating changed
     content_object = rating.content_object
     if rating.user != content_object.user:
         queryset = get_profile_model().objects.filter(user=content_object.user)
